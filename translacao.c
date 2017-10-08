@@ -8,20 +8,24 @@
 	#include <SDL2/SDL_ttf.h>
 #endif
 
+#include <math.h>
+#define PI 3.14159265
+
 int translacao(SDL_Point *point, int tx, int ty);
 int escala(SDL_Point *point, int ref, int Sx, int Sy);
 int espelhamento(SDL_Point *point, int ref);
 int cisalhamento(SDL_Point *point, int ref, int Cx, int Cy);
+int rotacao(SDL_Point *point, int ref, double alfa);
 
 int main(void) {
 	int i;
 	SDL_Point point[3] = {
-		{4,4}, //A
-		{8,6}, //B
-		{6,8}  //C
+		{5,4}, //A
+		{1,4}, //B
+		{5,0}  //C
 	};
 	
-	cisalhamento(point, 0, 1, 1);
+	rotacao(point, 0, 30);
 	
 	for (i = 0; i < 3; i++) {
 		printf("[%d,%d]\n", point[i].x, point[i].y);
@@ -128,6 +132,44 @@ int cisalhamento(SDL_Point *point, int ref, int Cx, int Cy)
 		default:
 			return 0;
 	}
+	
+	return 1;
+}
+int rotacao(SDL_Point *point, int ref, double alfa)
+{
+	int tx, ty;
+	double val = PI / 180.0;
+	double ax, ay,
+				 bx, by,
+				 cx, cy;
+	
+	tx = 0 - point[ref].x;
+	ty = 0 - point[ref].y;
+	
+	translacao(point, tx, ty);
+	
+	ax = (point[0].x * cos(alfa * val)) + (sin(alfa * val) * point[0].y) * -1;
+	ay = (point[0].x * sin(alfa * val)) + (cos(alfa * val) * point[0].y);
+	
+	point[0].x = round(ax);
+	point[0].y = round(ay);
+	
+	bx = (point[1].x * cos(alfa * val)) + (sin(alfa * val) * point[1].y) * -1;
+	by = (point[1].x * sin(alfa * val)) + (cos(alfa * val) * point[1].y);
+	
+	point[1].x = round(bx);
+	point[1].y = round(by);
+	
+	cx = (point[2].x * cos(alfa * val)) + ((sin(alfa * val) * point[2].y) * -1);
+	cy = (point[2].x * sin(alfa * val)) + (cos(alfa * val) * point[2].y);
+	
+	point[2].x = round(cx);
+	point[2].y = round(cy);
+	
+	tx = tx * (-1);
+	ty = ty * (-1);
+	
+	translacao(point, tx, ty);
 	
 	return 1;
 }
