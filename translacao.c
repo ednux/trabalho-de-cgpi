@@ -11,6 +11,7 @@
 int translacao(SDL_Point *point, int tx, int ty);
 int escala(SDL_Point *point, int ref, int Sx, int Sy);
 int espelhamento(SDL_Point *point, int ref);
+int cisalhamento(SDL_Point *point, int ref, int Cx, int Cy);
 
 int main(void) {
 	int i;
@@ -20,17 +21,16 @@ int main(void) {
 		{6,8}  //C
 	};
 	
-	espelhamento(point, 2);
+	cisalhamento(point, 0, 1, 1);
 	
 	for (i = 0; i < 3; i++) {
 		printf("[%d,%d]\n", point[i].x, point[i].y);
-	}	
+	}
 	
 	return 0;
 }
 int translacao(SDL_Point *point, int tx, int ty)
 {
-	
 	point[0].x = point[0].x + tx;
 	point[0].y = point[0].y + ty;
 	
@@ -92,7 +92,38 @@ int espelhamento(SDL_Point *point, int ref)
 			
 			point[2].x = point[2].x * (-1);
 			point[2].y = point[2].y * (-1);
-		
+			break;
+		default:
+			return 0;
+	}
+	
+	return 1;
+}
+int cisalhamento(SDL_Point *point, int ref, int Cx, int Cy)
+{
+	switch (ref) {
+		//Somente em x
+		case 0:
+			point[0].x = point[0].x + (Cx * point[0].y);
+			point[1].x = point[1].x + (Cx * point[1].y);
+			point[2].x = point[2].x + (Cx * point[2].y);
+			break;
+		//Somente em y
+		case 1:
+			point[0].y = point[0].y + (Cy * point[0].x);
+			point[1].y = point[1].y + (Cy * point[1].x);
+			point[2].y = point[2].y + (Cy * point[2].x);
+			break;
+		//Em x e y
+		case 2:
+			point[0].x = point[0].x + (Cx * point[0].y);
+			point[0].y = point[0].y + (Cy * point[0].x);
+			
+			point[1].x = point[1].x + (Cx * point[1].y);
+			point[1].y = point[1].y + (Cy * point[1].x);
+			
+			point[2].x = point[2].x + (Cx * point[2].y);
+			point[2].y = point[2].y + (Cy * point[2].x);
 			break;
 		default:
 			return 0;
