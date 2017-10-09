@@ -48,9 +48,9 @@ int main(int argc, char **argv) {
 	};
 	*/
 	SDL_Point point[3] = {
-		{300,340},
-		{500,340},
-		{400,140}
+		{400,240},
+		{500,40},
+		{600,240}
 	};
 
 
@@ -587,26 +587,26 @@ int espelhamento(SDL_Point *point, int ref)
 	switch (ref) {
 		//Somente em x
 		case 0:
-			point[0].x = point[0].x * (-1);
-			point[1].x = point[1].x * (-1);
-			point[2].x = point[2].x * (-1);
+			point[0].x = point[0].x - 2*(point[0].x - 400);//* (-1);
+			point[1].x = point[1].x - 2*(point[1].x - 400);//* (-1);
+			point[2].x = point[2].x - 2*(point[2].x - 400);//* (-1);
 			break;
 		//Somente em y
 		case 1:
-			point[0].y = point[0].y * (-1);
-			point[1].y = point[1].y * (-1);
-			point[2].y = point[2].y * (-1);
+			point[0].y = point[0].y + 2*(240 - point[0].y);
+			point[1].y = point[1].y + 2*(240 - point[1].y);
+			point[2].y = point[2].y + 2*(240 - point[2].y);
 			break;
 		//Em x e y
 		case 2:
-			point[0].x = point[0].x * (-1);
-			point[0].y = point[0].y * (-1);
+			point[0].x = point[0].x - 2*(point[0].x - 400);
+			point[0].y = point[0].y + 2*(240 - point[0].y);
 
-			point[1].x = point[1].x * (-1);
-			point[1].y = point[1].y * (-1);
+			point[1].x = point[1].x - 2*(point[1].x - 400);
+			point[1].y = point[1].y + 2*(240 - point[1].y);
 
-			point[2].x = point[2].x * (-1);
-			point[2].y = point[2].y * (-1);
+			point[2].x = point[2].x - 2*(point[2].x - 400);
+			point[2].y = point[2].y + 2*(240 - point[2].y);
 			break;
 		default:
 			return 0;
@@ -756,9 +756,7 @@ int renderFont(SDL_Texture **texture, SDL_Renderer **renderer, TTF_Font *font, c
 int mapear(SDL_Point *point)
 {
     int screen_maxw = 400;
-    int screen_maxh = 240;
-    int universe_maxw = 800;
-    int universe_maxh = 480;
+    int screen_maxh = -240;
 
     point[0].x = point[0].x + screen_maxw;
     point[0].y = point[0].y + screen_maxh;
