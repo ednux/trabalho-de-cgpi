@@ -39,6 +39,11 @@ int main(int argc, char **argv) {
 	if (!iniciar(&window,&renderer)) {
 		return 1;
 	}
+	
+	if (TTF_Init() == -1) {
+		SDL_Log("TTF_Init: %s\n", TTF_GetError());
+		return 1;
+	}
 
 	while (!quit) {
 		currentTime =  SDL_GetTicks();
@@ -52,6 +57,7 @@ int main(int argc, char **argv) {
 						quit = 1;
 						break;
 					}
+					break;
 			}
 		}
 	
@@ -65,6 +71,7 @@ int main(int argc, char **argv) {
 		}
 	}
 	
+	TTF_Quit();	
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
