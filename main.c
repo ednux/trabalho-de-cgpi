@@ -131,6 +131,11 @@ int main(int argc, char **argv) {
 							break;
 							case SDLK_4:
 								gstate = mirror;
+								strcpy(text, "Ref: ");
+								strcpy(ctext, "");
+								temValor = 0;
+								pstateP = pRef;
+								tmp = 0;
 							break;
 							case SDLK_5:
 								gstate = shearing;
@@ -403,9 +408,31 @@ int main(int argc, char **argv) {
 					SDL_RenderCopy(renderer,texture2, NULL, &pos2);
 					break;
 				case mirror:
-					espelhamento(point, 1);
-					gstate = show;
-				break;
+					if (pstateP == pRef) {
+						if (temValor) {
+							temValor = 0;
+							tmp = atoi(ctext);
+							ref = tmp;
+							pstateP = pX;
+							strcpy(text, "");
+							strcpy(ctext, "");
+							espelhamento(point, ref);
+							gstate = show;
+							tmp = 0;
+							break;
+						}
+					}
+					pos2.x = (ScreenRect.w - pos2.w) / 2;
+					pos2.y = (ScreenRect.h - pos2.h) / 2;
+					renderFont(&texture2, &renderer, font, text, &pos2);
+					pos.x = pos2.x + pos2.w + 5;
+					pos.y = pos2.y;
+					renderFont(&texture, &renderer, font, ctext, &pos);
+					SDL_SetRenderDrawColor(renderer,255,255,255,255);
+					if (strlen(ctext) > 0 )
+						SDL_RenderCopy(renderer,texture, NULL, &pos);
+					SDL_RenderCopy(renderer,texture2, NULL, &pos2);
+					break;
 				case shearing:
 					cisalhamento(point, 1, 0, 1);
 					gstate = show;
