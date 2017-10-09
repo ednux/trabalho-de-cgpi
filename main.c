@@ -28,7 +28,6 @@ int rotacao(SDL_Point *point, int ref, double alfa);
 int iniciar(SDL_Window **window, SDL_Renderer **renderer);
 int DrawLines(SDL_Renderer **renderer, SDL_Point *point);
 int renderFont(SDL_Texture **texture, SDL_Renderer **renderer, TTF_Font *font, char *text, SDL_Rect *pos);
-int mapear(SDL_Point *point);
 void removerCaractere(char *text);
 
 int main(int argc, char **argv) {
@@ -752,22 +751,6 @@ int renderFont(SDL_Texture **texture, SDL_Renderer **renderer, TTF_Font *font, c
 	SDL_FreeSurface(sText);
 
 	return 1;
-}
-int mapear(SDL_Point *point)
-{
-    int screen_maxw = 400;
-    int screen_maxh = -240;
-
-    point[0].x = point[0].x + screen_maxw;
-    point[0].y = point[0].y + screen_maxh;
-
-    point[1].x = point[1].x + screen_maxw;
-    point[1].y = point[1].y + screen_maxh;
-
-    point[2].x = point[2].x + screen_maxw;
-    point[2].y = point[2].y + screen_maxh;
-
-    return 1;
 }
 void removerCaractere(char *text)
 {
