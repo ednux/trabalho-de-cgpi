@@ -22,7 +22,7 @@ int rotacao(SDL_Point *point, int ref, double alfa);
 
 int iniciar(SDL_Window **window, SDL_Renderer **renderer);
 
-int main(void) {
+int main(int argc, char **argv) {
 	SDL_Window *window = NULL;
 	SDL_Renderer *renderer = NULL;
 	SDL_Event e;
