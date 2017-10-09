@@ -140,6 +140,11 @@ int main(int argc, char **argv) {
 							break;
 							case SDLK_5:
 								gstate = shearing;
+								strcpy(text, "Ref: ");
+								strcpy(ctext, "");
+								temValor = 0;
+								pstateP = pRef;
+								tmp = 0;
 							break;
 							default:
 							break;
@@ -435,8 +440,93 @@ int main(int argc, char **argv) {
 					SDL_RenderCopy(renderer,texture2, NULL, &pos2);
 					break;
 				case shearing:
-					cisalhamento(point, 1, 0, 1);
-					gstate = show;
+					if (pstateP == pRef) {
+						if (temValor) {
+							temValor = 0;
+							tmp = atoi(ctext);
+							ref = tmp;
+							switch (ref) {
+								case 2:
+								case 0:
+									pstateP = pX;
+									strcpy(text, "Cx: ");
+									strcpy(ctext, "");
+									tmp = 0;
+								break;
+								case 1:
+									pstateP = pY;
+									strcpy(text, "Cy: ");
+									strcpy(ctext, "");
+									tmp = 0;
+								break;
+								default:
+								break;
+							}
+						}
+					}
+					else {
+						if (pstateP == pX) {
+							if (temValor) {
+								temValor = 0;
+								tmp = atof(ctext);
+								sX = tmp;
+								switch (ref) {
+									case 0:
+										pstateP = pRef;
+										strcpy(text, "");
+										strcpy(ctext, "");
+										cisalhamento(point, ref, sX, 0);
+										gstate = show;
+										tmp = 0;
+									break;
+									case 2:
+										pstateP = pY;
+										strcpy(text, "Cy: ");
+										strcpy(ctext, "");
+										tmp = 0;
+									break;
+									default:
+									break;
+								}
+							}
+						}
+						else {
+							if (pstateP == pY) {
+								if (temValor) {
+									temValor = 0;
+									tmp = atof(ctext);
+									sY = tmp;
+									switch (ref) {
+										case 2:
+											escala(point, ref, sX, sY);
+										break;
+										case 1:
+											escala(point, ref, 0, sY);
+										break;
+										default:
+										break;
+									}
+									pstateP = pX;
+									strcpy(text, "");
+									strcpy(ctext, "");
+									gstate = show;
+									tmp = 0;
+									break;
+								}
+							}
+						}
+						
+					}
+					pos2.x = (ScreenRect.w - pos2.w) / 2;
+					pos2.y = (ScreenRect.h - pos2.h) / 2;
+					renderFont(&texture2, &renderer, font, text, &pos2);
+					pos.x = pos2.x + pos2.w + 5;
+					pos.y = pos2.y;
+					renderFont(&texture, &renderer, font, ctext, &pos);
+					SDL_SetRenderDrawColor(renderer,255,255,255,255);
+					if (strlen(ctext) > 0 )
+						SDL_RenderCopy(renderer,texture, NULL, &pos);
+					SDL_RenderCopy(renderer,texture2, NULL, &pos2);
 					break;
 				default:
 				break;
