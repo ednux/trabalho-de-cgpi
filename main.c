@@ -9,7 +9,10 @@
 #endif
 
 #include <math.h>
+
 #define PI 3.14159265
+
+SDL_Rect ScreenRect = {0, 0, 800, 480};
 
 int translacao(SDL_Point *point, int tx, int ty);
 int escala(SDL_Point *point, int ref, int Sx, int Sy);
@@ -17,19 +20,45 @@ int espelhamento(SDL_Point *point, int ref);
 int cisalhamento(SDL_Point *point, int ref, int Cx, int Cy);
 int rotacao(SDL_Point *point, int ref, double alfa);
 
+int iniciar(SDL_Window **window, SDL_Renderer **renderer);
+
 int main(void) {
-	int i;
-	SDL_Point point[3] = {
-		{5,4}, //A
-		{1,4}, //B
-		{5,0}  //C
-	};
+	SDL_Window *window = NULL;
+	SDL_Renderer *renderer = NULL;
+	SDL_Event e;
+	unsigned int lastTime = 0, currentTime;
+	int quit = 0;
 	
-	rotacao(point, 0, 30);
-	
-	for (i = 0; i < 3; i++) {
-		printf("[%d,%d]\n", point[i].x, point[i].y);
+	if (!iniciar(&window,&renderer)) {
+		return 1;
 	}
+
+	while (!quit) {
+		currentTime =  SDL_GetTicks();
+		while(SDL_PollEvent(&e)) {
+			switch(e.type) {
+				case SDL_QUIT:
+					quit = 1;
+					break;
+				case SDL_KEYDOWN:
+					if (e.key.keysym.sym == SDLK_ESCAPE) {
+						quit = 1;
+						break;
+					}
+			}
+		}
+	
+		if (currentTime > lastTime + 60) {
+			lastTime = currentTime;
+			SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+			SDL_RenderClear(renderer);
+			SDL_RenderPresent(renderer);
+		}
+	}
+	
+	SDL_DestroyRenderer(renderer);
+	SDL_DestroyWindow(window);
+	SDL_Quit();
 	
 	return 0;
 }
@@ -172,4 +201,48 @@ int rotacao(SDL_Point *point, int ref, double alfa)
 	translacao(point, tx, ty);
 	
 	return 1;
+}
+int iniciar(SDL_Window **window, SDL_Renderer **renderer)
+{
+	int status = 1;
+	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+		SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
+		status = 0;
+	}
+	else {
+		#ifdef __ANDROID__
+			SDL_DisplayMode displayMode;
+			if (SDL_GetCurrentDisplayMode(0, &displayMode) == 0) {
+				ScreenRect.w = displayMode.w;
+				ScreenRect.h = displayMode.h;
+			}
+		#endif
+		
+		// Create an application window with the following settings:
+		*window = SDL_CreateWindow(
+			"Transformações Computação Gráfica",										// window title
+			SDL_WINDOWPOS_UNDEFINED,		// initial x position
+			SDL_WINDOWPOS_UNDEFINED,		// initial y position
+			ScreenRect.w,								// width, in pixels
+			ScreenRect.h,								// height, in pixels
+			SDL_WINDOW_SHOWN						// flags - see below
+		);
+	
+		if (*window == NULL) {
+			SDL_Log("Window could not be created! SDL Error: %s\n", SDL_GetError());
+			status = 0;
+		}
+		else {
+			*renderer = SDL_CreateRenderer(*window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+			if (*renderer == NULL) {
+				SDL_Log( "Renderer could not be created! SDL Error: %s\n", SDL_GetError());
+				status = 0;
+			}
+			else { 	
+				SDL_RenderSetLogicalSize(*renderer, 800, 480);
+				SDL_SetRenderDrawColor(*renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+			}
+		}
+	}
+	return status;
 }
