@@ -13,6 +13,10 @@
 #define PI 3.14159265
 #define FONT "FreeSans.ttf"
 
+typedef enum {intro, show} GameState;
+typedef enum {pA, pB, pC} PState;
+typedef enum {pX, pY} PStateP;
+
 SDL_Rect ScreenRect = {0, 0, 800, 480};
 
 int translacao(SDL_Point *point, int tx, int ty);
@@ -23,26 +27,33 @@ int rotacao(SDL_Point *point, int ref, double alfa);
 
 int iniciar(SDL_Window **window, SDL_Renderer **renderer);
 int DrawLines(SDL_Renderer **renderer, SDL_Point *point);
+int renderFont(SDL_Texture **texture, SDL_Renderer **renderer, TTF_Font *font, char *text, SDL_Rect *pos);
+void removerCaractere(char *text);
 
 int main(int argc, char **argv) {
 	SDL_Window *window = NULL;
 	SDL_Renderer *renderer = NULL;
 	SDL_Texture *texture = NULL;
-	SDL_Surface *sText = NULL;
-	SDL_Color textColor = {0,0,0,255};
+	SDL_Texture *texture2 = NULL;
 	TTF_Font *font = NULL;
 	SDL_Event e;
 	SDL_Rect pos = {0,0,0,0};
+	SDL_Rect pos2 = {0,0,0,0};
 	SDL_Point point[3] = {
-		{300,340},
-		{500,340},
-		{400,140}
+		{0,0}, //A
+		{0,0}, //B
+		{0,0}  //C
 	};
 	
 	unsigned int lastTime = 0, currentTime;
 	int quit = 0;
-	char text[20] = "Edson Brilhante";
+	int temValor = 0, tmp;
+	char text[20] = "Ponto Ax: ";
+	char ctext[20] = "";
 	
+	GameState gstate = 0;
+	PState pstate = pA;
+	PStateP pstateP = pX;
 	
 	if (!iniciar(&window,&renderer)) {
 		return 1;
@@ -57,20 +68,8 @@ int main(int argc, char **argv) {
 	
 	if (font == NULL)
 		return 1;
-		
-	sText = TTF_RenderUTF8_Blended(font, text, textColor);
-    
-	if (sText == NULL )
-		return 1;
-		
-	pos.w = sText->w;
-	pos.h = sText->h;
 	
-	pos.x = (ScreenRect.w - pos.w) / 2;
-	pos.y = ScreenRect.h - pos.h - 80;
-	
-	texture = SDL_CreateTextureFromSurface(renderer,sText);
-	SDL_FreeSurface(sText);
+	SDL_StartTextInput();
 
 	while (!quit) {
 		currentTime =  SDL_GetTicks();
@@ -84,17 +83,144 @@ int main(int argc, char **argv) {
 						quit = 1;
 						break;
 					}
+					if (e.key.keysym.sym == SDLK_RETURN) {
+						if (gstate == intro) {
+							temValor = 1;
+							tmp = atoi(ctext);
+						}
+						break;
+					}
+					if (e.key.keysym.sym == SDLK_BACKSPACE && strlen(ctext) > 0 ) {
+						removerCaractere(ctext);
+						break;
+					}
+					break;
+				case SDL_TEXTINPUT:
+					if (strlen(ctext) < 20)
+						strcat(ctext, e.text.text);
 					break;
 			}
 		}
-	
+		
+		
 		if (currentTime > lastTime + 60) {
 			lastTime = currentTime;
 			SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
 			SDL_RenderClear(renderer);
-			SDL_SetRenderDrawColor(renderer, 0x0, 0x0, 0x0, 0xFF);
-			DrawLines(&renderer, point);
-			SDL_RenderCopy(renderer,texture, NULL, &pos);
+			
+			switch (gstate) {
+				case 0:
+					switch (pstate) {
+						case pA:
+							if (pstateP == 0) {
+								if (temValor) {
+									temValor = 0;
+									point[0].x = tmp;
+									pstateP = pY;
+									strcpy(text, "Ponto Ay: ");
+									strcpy(ctext, "");
+								}
+							}
+							else {
+								if (pstateP == 1) {
+									if (temValor) {
+										temValor = 0;
+										point[0].y = tmp;
+										pstateP = pX;
+										pstate = pB;
+										strcpy(text, "Ponto Bx: ");
+										strcpy(ctext, "");
+									}
+								}
+							}
+						break;
+						case pB:
+							if (pstateP == 0) {
+								if (temValor) {
+									temValor = 0;
+									point[1].x = tmp;
+									pstateP = pY;
+									strcpy(text, "Ponto By: ");
+									strcpy(ctext, "");
+								}
+							}
+							else {
+								if (pstateP == 1) {
+									if (temValor) {
+										temValor = 0;
+										point[1].y = tmp;
+										pstateP = pX;
+										pstate = pC;
+										strcpy(text, "Ponto Cx: ");
+										strcpy(ctext, "");
+									}
+								}
+							}
+						break;
+						case pC:
+							if (pstateP == 0) {
+								if (temValor) {
+									temValor = 0;
+									point[2].x = tmp;
+									pstateP = pY;
+									strcpy(text, "Ponto Cy: ");
+									strcpy(ctext, "");
+								}
+							}
+							else {
+								if (pstateP == 1) {
+									if (temValor) {
+										temValor = 0;
+										point[2].y = tmp;
+										pstateP = pX;
+										pstate = pA;
+										strcpy(text, "");
+										strcpy(ctext, "");
+										gstate = show;
+										tmp = 1;
+										SDL_StopTextInput();
+									}
+								}
+							}
+						break;
+						default:
+						break;
+					}
+					pos2.x = (ScreenRect.w - pos2.w) / 2;
+					pos2.y = (ScreenRect.h - pos2.h) / 2;
+					
+					renderFont(&texture2, &renderer, font, text, &pos2);
+					
+					pos.x = pos2.x + pos2.w + 5;
+					pos.y = pos2.y;
+			
+					renderFont(&texture, &renderer, font, ctext, &pos);
+					
+					SDL_SetRenderDrawColor(renderer,255,255,255,255);
+					if (strlen(ctext) > 0 )
+						SDL_RenderCopy(renderer,texture, NULL, &pos);
+					SDL_RenderCopy(renderer,texture2, NULL, &pos2);
+				break;
+				case show:
+					switch (tmp) {
+						case 0:
+						break;
+						case 1:
+							//translacao(point, 100, 100);
+							//escala(point, 0, 2, 2);
+							//espelhamento(point, 1);
+							//rotacao(point, 0, 30);
+							//cisalhamento(point, 1, 0, 0);
+							tmp = 0;
+						break;
+					}
+					SDL_SetRenderDrawColor(renderer, 0x0, 0x0, 0x0, 0xFF);
+					DrawLines(&renderer, point);
+				break;
+				default:
+				break;
+			}
+
 			SDL_RenderPresent(renderer);
 		}
 	}
@@ -297,4 +423,29 @@ int DrawLines(SDL_Renderer **renderer, SDL_Point *point)
 	SDL_RenderDrawLine(*renderer, point[1].x, point[1].y, point[2].x, point[2].y);
 	SDL_RenderDrawLine(*renderer, point[2].x, point[2].y, point[0].x, point[0].y);
 	return 0;
+}
+int renderFont(SDL_Texture **texture, SDL_Renderer **renderer, TTF_Font *font, char *text, SDL_Rect *pos)
+{
+	SDL_Surface *sText = NULL;
+	SDL_Color textColor = {0,0,0,255};
+	
+	sText = TTF_RenderUTF8_Blended(font, text, textColor);
+    
+	if (sText == NULL )
+		return 1;
+		
+	pos->w = sText->w;
+	pos->h = sText->h;
+
+	*texture = SDL_CreateTextureFromSurface(*renderer,sText);
+	SDL_FreeSurface(sText);
+	
+	return 1;
+}
+void removerCaractere(char *text)
+{
+	char *c = text;
+	while (*c != '\0')
+		++c;
+	*(c - 1) = '\0';
 }
