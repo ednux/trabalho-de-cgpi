@@ -20,7 +20,7 @@ typedef enum {pX, pY} PStateP;
 SDL_Rect ScreenRect = {0, 0, 800, 480};
 
 int translacao(SDL_Point *point, int tx, int ty);
-int escala(SDL_Point *point, int ref, int Sx, int Sy);
+int escala(SDL_Point *point, int ref, double Sx, double Sy);
 int espelhamento(SDL_Point *point, int ref);
 int cisalhamento(SDL_Point *point, int ref, int Cx, int Cy);
 int rotacao(SDL_Point *point, int ref, double alfa);
@@ -285,7 +285,7 @@ int main(int argc, char **argv) {
 					SDL_RenderCopy(renderer,texture2, NULL, &pos2);
 				break;
 				case scale:
-					escala(point, 0, 2, 2);
+					escala(point, 0, 0.5, 0.5);
 					gstate = show;
 					break;
 				case rotate:
@@ -329,7 +329,7 @@ int translacao(SDL_Point *point, int tx, int ty)
 	
 	return 1;
 }
-int escala(SDL_Point *point, int ref, int Sx, int Sy)
+int escala(SDL_Point *point, int ref, double Sx, double Sy)
 {
 	int tx, ty;
 	
@@ -338,14 +338,14 @@ int escala(SDL_Point *point, int ref, int Sx, int Sy)
 	
 	translacao(point, tx, ty);
 		
-	point[0].x = point[0].x * Sx;
-	point[0].y = point[0].y * Sy;
+	point[0].x = round(point[0].x * Sx);
+	point[0].y = round(point[0].y * Sy);
 	
-	point[1].x = point[1].x * Sx;
-	point[1].y = point[1].y * Sy;
+	point[1].x = round(point[1].x * Sx);
+	point[1].y = round(point[1].y * Sy);
 	
-	point[2].x = point[2].x * Sx;
-	point[2].y = point[2].y * Sy;
+	point[2].x = round(point[2].x * Sx);
+	point[2].y = round(point[2].y * Sy);
 	
 	tx = tx * (-1);
 	ty = ty * (-1);
