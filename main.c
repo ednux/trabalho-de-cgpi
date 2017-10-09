@@ -15,7 +15,7 @@
 
 typedef enum {intro, show, translation, scale, rotate, mirror, shearing} GameState;
 typedef enum {pA, pB, pC} PState;
-typedef enum {pX, pY} PStateP;
+typedef enum {pX, pY, pRef} PStateP;
 
 SDL_Rect ScreenRect = {0, 0, 800, 480};
 
@@ -39,27 +39,29 @@ int main(int argc, char **argv) {
 	SDL_Event e;
 	SDL_Rect pos = {0,0,0,0};
 	SDL_Rect pos2 = {0,0,0,0};
-	/*
+	
 	SDL_Point point[3] = {
 		{0,0}, //A
 		{0,0}, //B
 		{0,0}  //C
 	};
-	*/
+	/*
 	SDL_Point point[3] = {
 		{300,340},
 		{500,340},
 		{400,140}
 	};
+	*/
 	
 	unsigned int lastTime = 0, currentTime;
 	int quit = 0;
-	int temValor = 0, tmp = 0;
-	int tx, ty;
+	int temValor = 0; 
+	int tx, ty, ref;
+	double sX, sY, tmp = 0;
 	char text[20] = "Ponto Ax: ";
 	char ctext[20] = "";
 	
-	GameState gstate = 1;
+	GameState gstate = 0;
 	PState pstate = pA;
 	PStateP pstateP = pX;
 	
@@ -94,7 +96,6 @@ int main(int argc, char **argv) {
 					if (gstate != show) {
 						if (e.key.keysym.sym == SDLK_RETURN) {
 							temValor = 1;
-							tmp = atoi(ctext);
 							break;
 						}
 						if (e.key.keysym.sym == SDLK_BACKSPACE && strlen(ctext) > 0 ) {
@@ -114,10 +115,10 @@ int main(int argc, char **argv) {
 							break;
 							case SDLK_2:
 								gstate = scale;
-								strcpy(text, "Tx: ");
+								strcpy(text, "Ref: ");
 								strcpy(ctext, "");
 								temValor = 0;
-								pstateP = pX;
+								pstateP = pRef;
 								tmp = 0;
 							break;
 							case SDLK_3:
@@ -154,21 +155,25 @@ int main(int argc, char **argv) {
 							if (pstateP == 0) {
 								if (temValor) {
 									temValor = 0;
+									tmp = atoi(ctext);
 									point[0].x = tmp;
 									pstateP = pY;
 									strcpy(text, "Ponto Ay: ");
 									strcpy(ctext, "");
+									tmp = 0;
 								}
 							}
 							else {
 								if (pstateP == 1) {
 									if (temValor) {
 										temValor = 0;
+										tmp = atoi(ctext);
 										point[0].y = tmp;
 										pstateP = pX;
 										pstate = pB;
 										strcpy(text, "Ponto Bx: ");
 										strcpy(ctext, "");
+										tmp = 0;
 									}
 								}
 							}
@@ -177,22 +182,25 @@ int main(int argc, char **argv) {
 							if (pstateP == 0) {
 								if (temValor) {
 									temValor = 0;
+									tmp = atoi(ctext);
 									point[1].x = tmp;
 									pstateP = pY;
-									
 									strcpy(text, "Ponto By: ");
 									strcpy(ctext, "");
+									tmp = 0;
 								}
 							}
 							else {
 								if (pstateP == 1) {
 									if (temValor) {
 										temValor = 0;
+										tmp = atoi(ctext);
 										point[1].y = tmp;
 										pstateP = pX;
 										pstate = pC;
 										strcpy(text, "Ponto Cx: ");
 										strcpy(ctext, "");
+										tmp = 0;
 									}
 								}
 							}
@@ -201,23 +209,26 @@ int main(int argc, char **argv) {
 							if (pstateP == 0) {
 								if (temValor) {
 									temValor = 0;
+									tmp = atoi(ctext);
 									point[2].x = tmp;
 									pstateP = pY;
 									strcpy(text, "Ponto Cy: ");
 									strcpy(ctext, "");
+									tmp = 0;
 								}
 							}
 							else {
 								if (pstateP == 1) {
 									if (temValor) {
 										temValor = 0;
+										tmp = atoi(ctext);
 										point[2].y = tmp;
 										pstateP = pX;
 										pstate = pA;
 										strcpy(text, "");
 										strcpy(ctext, "");
 										gstate = show;
-										tmp = 1;
+										tmp = 0;
 										//SDL_StopTextInput();
 									}
 								}
@@ -249,16 +260,19 @@ int main(int argc, char **argv) {
 					if (pstateP == 0) {
 						if (temValor) {
 							temValor = 0;
+							tmp = atoi(ctext);
 							tx = tmp;
 							pstateP = pY;
 							strcpy(text, "Ty: ");
 							strcpy(ctext, "");
+							tmp = 0;
 						}
 					}
 					else {
 						if (pstateP == 1) {
 							if (temValor) {
 								temValor = 0;
+								tmp = atoi(ctext);
 								ty = tmp;
 								pstateP = pX;
 								strcpy(text, "");
@@ -285,8 +299,59 @@ int main(int argc, char **argv) {
 					SDL_RenderCopy(renderer,texture2, NULL, &pos2);
 				break;
 				case scale:
-					escala(point, 0, 0.5, 0.5);
-					gstate = show;
+					if (pstateP == pRef) {
+						if (temValor) {
+							temValor = 0;
+							tmp = atoi(ctext);
+							ref = tmp;
+							pstateP = pX;
+							strcpy(text, "Sx: ");
+							strcpy(ctext, "");
+							tmp = 0;
+						}
+					}
+					else {
+						if (pstateP == pX) {
+							if (temValor) {
+								temValor = 0;
+								tmp = atof(ctext);
+								sX = tmp;
+								pstateP = pY;
+								strcpy(text, "Sy: ");
+								strcpy(ctext, "");
+								tmp = 0;
+							}
+						}
+						else {
+							if (pstateP == pY) {
+								if (temValor) {
+									temValor = 0;
+									tmp = atof(ctext);
+									sY = tmp;
+									pstateP = pX;
+									strcpy(text, "");
+									strcpy(ctext, "");
+									escala(point, ref, sX, sY);
+									gstate = show;
+									tmp = 0;
+								}
+							}
+						}
+					}
+					pos2.x = (ScreenRect.w - pos2.w) / 2;
+					pos2.y = (ScreenRect.h - pos2.h) / 2;
+					
+					renderFont(&texture2, &renderer, font, text, &pos2);
+					
+					pos.x = pos2.x + pos2.w + 5;
+					pos.y = pos2.y;
+			
+					renderFont(&texture, &renderer, font, ctext, &pos);
+					
+					SDL_SetRenderDrawColor(renderer,255,255,255,255);
+					if (strlen(ctext) > 0 )
+						SDL_RenderCopy(renderer,texture, NULL, &pos);
+					SDL_RenderCopy(renderer,texture2, NULL, &pos2);
 					break;
 				case rotate:
 					rotacao(point, 2, 90);
