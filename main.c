@@ -28,6 +28,7 @@ int rotacao(SDL_Point *point, int ref, double alfa);
 int iniciar(SDL_Window **window, SDL_Renderer **renderer);
 int DrawLines(SDL_Renderer **renderer, SDL_Point *point);
 int renderFont(SDL_Texture **texture, SDL_Renderer **renderer, TTF_Font *font, char *text, SDL_Rect *pos);
+int mapear(SDL_Point *point);
 void removerCaractere(char *text);
 
 int main(int argc, char **argv) {
@@ -51,34 +52,34 @@ int main(int argc, char **argv) {
 		{500,340},
 		{400,140}
 	};
-	
-	
+
+
 	unsigned int lastTime = 0, currentTime;
 	int quit = 0;
-	int temValor = 0; 
+	int temValor = 0;
 	int tx, ty, ref;
 	double sX, sY, alfa, tmp = 0;
 	char text[20] = "Ponto Ax: ";
 	char ctext[20] = "";
-	
+
 	GameState gstate = 1;
 	PState pstate = pA;
 	PStateP pstateP = pX;
-	
+
 	if (!iniciar(&window,&renderer)) {
 		return 1;
 	}
-	
+
 	if (TTF_Init() == -1) {
 		SDL_Log("TTF_Init: %s\n", TTF_GetError());
 		return 1;
 	}
-	
+
 	font = TTF_OpenFont(FONT, 28);
-	
+
 	if (font == NULL)
 		return 1;
-	
+
 	SDL_StartTextInput();
 
 	while (!quit) {
@@ -151,13 +152,13 @@ int main(int argc, char **argv) {
 					break;
 			}
 		}
-		
-		
+
+
 		if (currentTime > lastTime + 60) {
 			lastTime = currentTime;
 			SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
 			SDL_RenderClear(renderer);
-			
+
 			switch (gstate) {
 				case 0:
 					switch (pstate) {
@@ -249,14 +250,14 @@ int main(int argc, char **argv) {
 					}
 					pos2.x = (ScreenRect.w - pos2.w) / 2;
 					pos2.y = (ScreenRect.h - pos2.h) / 2;
-					
+
 					renderFont(&texture2, &renderer, font, text, &pos2);
-					
+
 					pos.x = pos2.x + pos2.w + 5;
 					pos.y = pos2.y;
-			
+
 					renderFont(&texture, &renderer, font, ctext, &pos);
-					
+
 					SDL_SetRenderDrawColor(renderer,255,255,255,255);
 					if (strlen(ctext) > 0 )
 						SDL_RenderCopy(renderer,texture, NULL, &pos);
@@ -295,14 +296,14 @@ int main(int argc, char **argv) {
 					}
 					pos2.x = (ScreenRect.w - pos2.w) / 2;
 					pos2.y = (ScreenRect.h - pos2.h) / 2;
-					
+
 					renderFont(&texture2, &renderer, font, text, &pos2);
-					
+
 					pos.x = pos2.x + pos2.w + 5;
 					pos.y = pos2.y;
-			
+
 					renderFont(&texture, &renderer, font, ctext, &pos);
-					
+
 					SDL_SetRenderDrawColor(renderer,255,255,255,255);
 					if (strlen(ctext) > 0 )
 						SDL_RenderCopy(renderer,texture, NULL, &pos);
@@ -351,14 +352,14 @@ int main(int argc, char **argv) {
 					}
 					pos2.x = (ScreenRect.w - pos2.w) / 2;
 					pos2.y = (ScreenRect.h - pos2.h) / 2;
-					
+
 					renderFont(&texture2, &renderer, font, text, &pos2);
-					
+
 					pos.x = pos2.x + pos2.w + 5;
 					pos.y = pos2.y;
-			
+
 					renderFont(&texture, &renderer, font, ctext, &pos);
-					
+
 					SDL_SetRenderDrawColor(renderer,255,255,255,255);
 					if (strlen(ctext) > 0 )
 						SDL_RenderCopy(renderer,texture, NULL, &pos);
@@ -394,14 +395,14 @@ int main(int argc, char **argv) {
 					}
 					pos2.x = (ScreenRect.w - pos2.w) / 2;
 					pos2.y = (ScreenRect.h - pos2.h) / 2;
-					
+
 					renderFont(&texture2, &renderer, font, text, &pos2);
-					
+
 					pos.x = pos2.x + pos2.w + 5;
 					pos.y = pos2.y;
-			
+
 					renderFont(&texture, &renderer, font, ctext, &pos);
-					
+
 					SDL_SetRenderDrawColor(renderer,255,255,255,255);
 					if (strlen(ctext) > 0 )
 						SDL_RenderCopy(renderer,texture, NULL, &pos);
@@ -444,51 +445,51 @@ int main(int argc, char **argv) {
 			SDL_RenderPresent(renderer);
 		}
 	}
-	
+
 	TTF_CloseFont(font);
-	TTF_Quit();	
+	TTF_Quit();
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
-	
+
 	return 0;
 }
 int translacao(SDL_Point *point, int tx, int ty)
 {
 	point[0].x = point[0].x + tx;
 	point[0].y = point[0].y + ty;
-	
+
 	point[1].x = point[1].x + tx;
 	point[1].y = point[1].y + ty;
-	
+
 	point[2].x = point[2].x + tx;
 	point[2].y = point[2].y + ty;
-	
+
 	return 1;
 }
 int escala(SDL_Point *point, int ref, double Sx, double Sy)
 {
 	int tx, ty;
-	
+
 	tx = 0 - point[ref].x;
 	ty = 0 - point[ref].y;
-	
+
 	translacao(point, tx, ty);
-		
+
 	point[0].x = round(point[0].x * Sx);
 	point[0].y = round(point[0].y * Sy);
-	
+
 	point[1].x = round(point[1].x * Sx);
 	point[1].y = round(point[1].y * Sy);
-	
+
 	point[2].x = round(point[2].x * Sx);
 	point[2].y = round(point[2].y * Sy);
-	
+
 	tx = tx * (-1);
 	ty = ty * (-1);
-	
+
 	translacao(point, tx, ty);
-	
+
 	return 1;
 }
 int espelhamento(SDL_Point *point, int ref)
@@ -510,17 +511,17 @@ int espelhamento(SDL_Point *point, int ref)
 		case 2:
 			point[0].x = point[0].x * (-1);
 			point[0].y = point[0].y * (-1);
-			
+
 			point[1].x = point[1].x * (-1);
 			point[1].y = point[1].y * (-1);
-			
+
 			point[2].x = point[2].x * (-1);
 			point[2].y = point[2].y * (-1);
 			break;
 		default:
 			return 0;
 	}
-	
+
 	return 1;
 }
 int cisalhamento(SDL_Point *point, int ref, int Cx, int Cy)
@@ -542,17 +543,17 @@ int cisalhamento(SDL_Point *point, int ref, int Cx, int Cy)
 		case 2:
 			point[0].x = point[0].x + (Cx * point[0].y);
 			point[0].y = point[0].y + (Cy * point[0].x);
-			
+
 			point[1].x = point[1].x + (Cx * point[1].y);
 			point[1].y = point[1].y + (Cy * point[1].x);
-			
+
 			point[2].x = point[2].x + (Cx * point[2].y);
 			point[2].y = point[2].y + (Cy * point[2].x);
 			break;
 		default:
 			return 0;
 	}
-	
+
 	return 1;
 }
 int rotacao(SDL_Point *point, int ref, double alfa)
@@ -562,35 +563,35 @@ int rotacao(SDL_Point *point, int ref, double alfa)
 	double ax, ay,
 				 bx, by,
 				 cx, cy;
-	
+
 	tx = 0 - point[ref].x;
 	ty = 0 - point[ref].y;
-	
+
 	translacao(point, tx, ty);
-	
+
 	ax = (point[0].x * cos(alfa * val)) + (sin(alfa * val) * point[0].y) * -1;
 	ay = (point[0].x * sin(alfa * val)) + (cos(alfa * val) * point[0].y);
-	
+
 	point[0].x = round(ax);
 	point[0].y = round(ay);
-	
+
 	bx = (point[1].x * cos(alfa * val)) + (sin(alfa * val) * point[1].y) * -1;
 	by = (point[1].x * sin(alfa * val)) + (cos(alfa * val) * point[1].y);
-	
+
 	point[1].x = round(bx);
 	point[1].y = round(by);
-	
+
 	cx = (point[2].x * cos(alfa * val)) + ((sin(alfa * val) * point[2].y) * -1);
 	cy = (point[2].x * sin(alfa * val)) + (cos(alfa * val) * point[2].y);
-	
+
 	point[2].x = round(cx);
 	point[2].y = round(cy);
-	
+
 	tx = tx * (-1);
 	ty = ty * (-1);
-	
+
 	translacao(point, tx, ty);
-	
+
 	return 1;
 }
 int iniciar(SDL_Window **window, SDL_Renderer **renderer)
@@ -608,7 +609,7 @@ int iniciar(SDL_Window **window, SDL_Renderer **renderer)
 				ScreenRect.h = displayMode.h;
 			}
 		#endif
-		
+
 		// Create an application window with the following settings:
 		*window = SDL_CreateWindow(
 			"Transformações Computação Gráfica",										// window title
@@ -618,7 +619,7 @@ int iniciar(SDL_Window **window, SDL_Renderer **renderer)
 			ScreenRect.h,								// height, in pixels
 			SDL_WINDOW_SHOWN						// flags - see below
 		);
-	
+
 		if (*window == NULL) {
 			SDL_Log("Window could not be created! SDL Error: %s\n", SDL_GetError());
 			status = 0;
@@ -629,7 +630,7 @@ int iniciar(SDL_Window **window, SDL_Renderer **renderer)
 				SDL_Log( "Renderer could not be created! SDL Error: %s\n", SDL_GetError());
 				status = 0;
 			}
-			else { 	
+			else {
 				SDL_RenderSetLogicalSize(*renderer, 800, 480);
 				SDL_SetRenderDrawColor(*renderer, 0xFF, 0xFF, 0xFF, 0xFF);
 			}
@@ -648,19 +649,36 @@ int renderFont(SDL_Texture **texture, SDL_Renderer **renderer, TTF_Font *font, c
 {
 	SDL_Surface *sText = NULL;
 	SDL_Color textColor = {0,0,0,255};
-	
+
 	sText = TTF_RenderUTF8_Blended(font, text, textColor);
-    
+
 	if (sText == NULL )
 		return 1;
-		
+
 	pos->w = sText->w;
 	pos->h = sText->h;
 
 	*texture = SDL_CreateTextureFromSurface(*renderer,sText);
 	SDL_FreeSurface(sText);
-	
+
 	return 1;
+}
+int mapear(SDL_Point *point){
+    int screen_maxw = 400;
+    int screen_maxh = 240;
+    int universe_maxw = 800;
+    int universe_maxh = 480;
+
+    point[0].x = (point[0].x * screen_maxw) / universe_maxw;
+    point[0].y = (point[0].y * screen_maxh) / universe_maxh;
+
+    point[1].x = (point[1].x * screen_maxw) / universe_maxw;
+    point[1].y = (point[1].y * screen_maxh) / universe_maxh;
+
+    point[2].x = (point[2].x * screen_maxw) / universe_maxw;
+    point[2].y = (point[2].y * screen_maxh) / universe_maxh;
+
+    return 1;
 }
 void removerCaractere(char *text)
 {
