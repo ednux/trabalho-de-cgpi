@@ -732,6 +732,8 @@ int DrawLines(SDL_Renderer **renderer, SDL_Point *point)
 	SDL_RenderDrawLine(*renderer, point[0].x, point[0].y, point[1].x, point[1].y);
 	SDL_RenderDrawLine(*renderer, point[1].x, point[1].y, point[2].x, point[2].y);
 	SDL_RenderDrawLine(*renderer, point[2].x, point[2].y, point[0].x, point[0].y);
+	SDL_RenderDrawLine(*renderer, 400, 0, 400, 480);
+	SDL_RenderDrawLine(*renderer, 0, 240, 800, 240);
 	return 0;
 }
 int renderFont(SDL_Texture **texture, SDL_Renderer **renderer, TTF_Font *font, char *text, SDL_Rect *pos)
