@@ -13,7 +13,7 @@
 #define PI 3.14159265
 #define FONT "FreeSans.ttf"
 
-typedef enum {intro, show} GameState;
+typedef enum {intro, show, translation, scale, rotate, mirror, shearing} GameState;
 typedef enum {pA, pB, pC} PState;
 typedef enum {pX, pY} PStateP;
 
@@ -39,19 +39,27 @@ int main(int argc, char **argv) {
 	SDL_Event e;
 	SDL_Rect pos = {0,0,0,0};
 	SDL_Rect pos2 = {0,0,0,0};
+	/*
 	SDL_Point point[3] = {
 		{0,0}, //A
 		{0,0}, //B
 		{0,0}  //C
 	};
+	*/
+	SDL_Point point[3] = {
+		{300,340},
+		{500,340},
+		{400,140}
+	};
 	
 	unsigned int lastTime = 0, currentTime;
 	int quit = 0;
-	int temValor = 0, tmp;
+	int temValor = 0, tmp = 0;
+	int tx, ty;
 	char text[20] = "Ponto Ax: ";
 	char ctext[20] = "";
 	
-	GameState gstate = 0;
+	GameState gstate = 1;
 	PState pstate = pA;
 	PStateP pstateP = pX;
 	
@@ -83,16 +91,47 @@ int main(int argc, char **argv) {
 						quit = 1;
 						break;
 					}
-					if (e.key.keysym.sym == SDLK_RETURN) {
-						if (gstate == intro) {
+					if (gstate != show) {
+						if (e.key.keysym.sym == SDLK_RETURN) {
 							temValor = 1;
 							tmp = atoi(ctext);
+							break;
 						}
-						break;
+						if (e.key.keysym.sym == SDLK_BACKSPACE && strlen(ctext) > 0 ) {
+							removerCaractere(ctext);
+							break;
+						}
 					}
-					if (e.key.keysym.sym == SDLK_BACKSPACE && strlen(ctext) > 0 ) {
-						removerCaractere(ctext);
-						break;
+					else {
+						switch (e.key.keysym.sym) {
+							case SDLK_1:
+								gstate = translation;
+								strcpy(text, "Tx: ");
+								strcpy(ctext, "");
+								temValor = 0;
+								pstateP = pX;
+								tmp = 0;
+							break;
+							case SDLK_2:
+								gstate = scale;
+								strcpy(text, "Tx: ");
+								strcpy(ctext, "");
+								temValor = 0;
+								pstateP = pX;
+								tmp = 0;
+							break;
+							case SDLK_3:
+								gstate = rotate;
+							break;
+							case SDLK_4:
+								gstate = mirror;
+							break;
+							case SDLK_5:
+								gstate = shearing;
+							break;
+							default:
+							break;
+						}
 					}
 					break;
 				case SDL_TEXTINPUT:
@@ -140,6 +179,7 @@ int main(int argc, char **argv) {
 									temValor = 0;
 									point[1].x = tmp;
 									pstateP = pY;
+									
 									strcpy(text, "Ponto By: ");
 									strcpy(ctext, "");
 								}
@@ -178,7 +218,7 @@ int main(int argc, char **argv) {
 										strcpy(ctext, "");
 										gstate = show;
 										tmp = 1;
-										SDL_StopTextInput();
+										//SDL_StopTextInput();
 									}
 								}
 							}
@@ -202,21 +242,64 @@ int main(int argc, char **argv) {
 					SDL_RenderCopy(renderer,texture2, NULL, &pos2);
 				break;
 				case show:
-					switch (tmp) {
-						case 0:
-						break;
-						case 1:
-							//translacao(point, 100, 100);
-							//escala(point, 0, 2, 2);
-							//espelhamento(point, 1);
-							//rotacao(point, 0, 30);
-							//cisalhamento(point, 1, 0, 0);
-							tmp = 0;
-						break;
-					}
 					SDL_SetRenderDrawColor(renderer, 0x0, 0x0, 0x0, 0xFF);
 					DrawLines(&renderer, point);
 				break;
+				case translation:
+					if (pstateP == 0) {
+						if (temValor) {
+							temValor = 0;
+							tx = tmp;
+							pstateP = pY;
+							strcpy(text, "Ty: ");
+							strcpy(ctext, "");
+						}
+					}
+					else {
+						if (pstateP == 1) {
+							if (temValor) {
+								temValor = 0;
+								ty = tmp;
+								pstateP = pX;
+								strcpy(text, "");
+								strcpy(ctext, "");
+								translacao(point, tx, ty);
+								gstate = show;
+								tmp = 0;
+							}
+						}
+					}
+					pos2.x = (ScreenRect.w - pos2.w) / 2;
+					pos2.y = (ScreenRect.h - pos2.h) / 2;
+					
+					renderFont(&texture2, &renderer, font, text, &pos2);
+					
+					pos.x = pos2.x + pos2.w + 5;
+					pos.y = pos2.y;
+			
+					renderFont(&texture, &renderer, font, ctext, &pos);
+					
+					SDL_SetRenderDrawColor(renderer,255,255,255,255);
+					if (strlen(ctext) > 0 )
+						SDL_RenderCopy(renderer,texture, NULL, &pos);
+					SDL_RenderCopy(renderer,texture2, NULL, &pos2);
+				break;
+				case scale:
+					escala(point, 0, 2, 2);
+					gstate = show;
+					break;
+				case rotate:
+					rotacao(point, 2, 90);
+					gstate = show;
+					break;
+				case mirror:
+					espelhamento(point, 1);
+					gstate = show;
+				break;
+				case shearing:
+					cisalhamento(point, 1, 0, 1);
+					gstate = show;
+					break;
 				default:
 				break;
 			}
