@@ -39,29 +39,29 @@ int main(int argc, char **argv) {
 	SDL_Event e;
 	SDL_Rect pos = {0,0,0,0};
 	SDL_Rect pos2 = {0,0,0,0};
-	
+	/*
 	SDL_Point point[3] = {
 		{0,0}, //A
 		{0,0}, //B
 		{0,0}  //C
 	};
-	/*
+	*/
 	SDL_Point point[3] = {
 		{300,340},
 		{500,340},
 		{400,140}
 	};
-	*/
+	
 	
 	unsigned int lastTime = 0, currentTime;
 	int quit = 0;
 	int temValor = 0; 
 	int tx, ty, ref;
-	double sX, sY, tmp = 0;
+	double sX, sY, alfa, tmp = 0;
 	char text[20] = "Ponto Ax: ";
 	char ctext[20] = "";
 	
-	GameState gstate = 0;
+	GameState gstate = 1;
 	PState pstate = pA;
 	PStateP pstateP = pX;
 	
@@ -123,6 +123,11 @@ int main(int argc, char **argv) {
 							break;
 							case SDLK_3:
 								gstate = rotate;
+								strcpy(text, "Ref: ");
+								strcpy(ctext, "");
+								temValor = 0;
+								pstateP = pRef;
+								tmp = 0;
 							break;
 							case SDLK_4:
 								gstate = mirror;
@@ -334,6 +339,7 @@ int main(int argc, char **argv) {
 									escala(point, ref, sX, sY);
 									gstate = show;
 									tmp = 0;
+									break;
 								}
 							}
 						}
@@ -354,8 +360,47 @@ int main(int argc, char **argv) {
 					SDL_RenderCopy(renderer,texture2, NULL, &pos2);
 					break;
 				case rotate:
-					rotacao(point, 2, 90);
-					gstate = show;
+					if (pstateP == pRef) {
+						if (temValor) {
+							temValor = 0;
+							tmp = atoi(ctext);
+							ref = tmp;
+							pstateP = pX;
+							strcpy(text, "Angulo: ");
+							strcpy(ctext, "");
+							tmp = 0;
+						}
+					}
+					else {
+						if (pstateP == pX) {
+							if (temValor) {
+								temValor = 0;
+								tmp = atof(ctext);
+								alfa = tmp;
+								pstateP = pX;
+								strcpy(text, "");
+								strcpy(ctext, "");
+								rotacao(point,ref,alfa);
+								gstate = show;
+								tmp = 0;
+								break;
+							}
+						}
+					}
+					pos2.x = (ScreenRect.w - pos2.w) / 2;
+					pos2.y = (ScreenRect.h - pos2.h) / 2;
+					
+					renderFont(&texture2, &renderer, font, text, &pos2);
+					
+					pos.x = pos2.x + pos2.w + 5;
+					pos.y = pos2.y;
+			
+					renderFont(&texture, &renderer, font, ctext, &pos);
+					
+					SDL_SetRenderDrawColor(renderer,255,255,255,255);
+					if (strlen(ctext) > 0 )
+						SDL_RenderCopy(renderer,texture, NULL, &pos);
+					SDL_RenderCopy(renderer,texture2, NULL, &pos2);
 					break;
 				case mirror:
 					espelhamento(point, 1);
