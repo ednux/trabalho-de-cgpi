@@ -11,6 +11,7 @@
 #include <math.h>
 
 #define PI 3.14159265
+#define FONT "FreeSans.ttf"
 
 SDL_Rect ScreenRect = {0, 0, 800, 480};
 
@@ -26,7 +27,12 @@ int DrawLines(SDL_Renderer **renderer, SDL_Point *point);
 int main(int argc, char **argv) {
 	SDL_Window *window = NULL;
 	SDL_Renderer *renderer = NULL;
+	SDL_Texture *texture = NULL;
+	SDL_Surface *sText = NULL;
+	SDL_Color textColor = {0,0,0,255};
+	TTF_Font *font = NULL;
 	SDL_Event e;
+	SDL_Rect pos = {0,0,0,0};
 	SDL_Point point[3] = {
 		{300,340},
 		{500,340},
@@ -35,6 +41,8 @@ int main(int argc, char **argv) {
 	
 	unsigned int lastTime = 0, currentTime;
 	int quit = 0;
+	char text[20] = "Edson Brilhante";
+	
 	
 	if (!iniciar(&window,&renderer)) {
 		return 1;
@@ -44,6 +52,25 @@ int main(int argc, char **argv) {
 		SDL_Log("TTF_Init: %s\n", TTF_GetError());
 		return 1;
 	}
+	
+	font = TTF_OpenFont(FONT, 28);
+	
+	if (font == NULL)
+		return 1;
+		
+	sText = TTF_RenderUTF8_Blended(font, text, textColor);
+    
+	if (sText == NULL )
+		return 1;
+		
+	pos.w = sText->w;
+	pos.h = sText->h;
+	
+	pos.x = (ScreenRect.w - pos.w) / 2;
+	pos.y = ScreenRect.h - pos.h - 80;
+	
+	texture = SDL_CreateTextureFromSurface(renderer,sText);
+	SDL_FreeSurface(sText);
 
 	while (!quit) {
 		currentTime =  SDL_GetTicks();
@@ -67,10 +94,12 @@ int main(int argc, char **argv) {
 			SDL_RenderClear(renderer);
 			SDL_SetRenderDrawColor(renderer, 0x0, 0x0, 0x0, 0xFF);
 			DrawLines(&renderer, point);
+			SDL_RenderCopy(renderer,texture, NULL, &pos);
 			SDL_RenderPresent(renderer);
 		}
 	}
 	
+	TTF_CloseFont(font);
 	TTF_Quit();	
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
