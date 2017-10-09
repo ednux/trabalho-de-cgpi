@@ -21,11 +21,18 @@ int cisalhamento(SDL_Point *point, int ref, int Cx, int Cy);
 int rotacao(SDL_Point *point, int ref, double alfa);
 
 int iniciar(SDL_Window **window, SDL_Renderer **renderer);
+int DrawLines(SDL_Renderer **renderer, SDL_Point *point);
 
 int main(int argc, char **argv) {
 	SDL_Window *window = NULL;
 	SDL_Renderer *renderer = NULL;
 	SDL_Event e;
+	SDL_Point point[3] = {
+		{300,340},
+		{500,340},
+		{400,140}
+	};
+	
 	unsigned int lastTime = 0, currentTime;
 	int quit = 0;
 	
@@ -52,6 +59,8 @@ int main(int argc, char **argv) {
 			lastTime = currentTime;
 			SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
 			SDL_RenderClear(renderer);
+			SDL_SetRenderDrawColor(renderer, 0x0, 0x0, 0x0, 0xFF);
+			DrawLines(&renderer, point);
 			SDL_RenderPresent(renderer);
 		}
 	}
@@ -245,4 +254,11 @@ int iniciar(SDL_Window **window, SDL_Renderer **renderer)
 		}
 	}
 	return status;
+}
+int DrawLines(SDL_Renderer **renderer, SDL_Point *point)
+{
+	SDL_RenderDrawLine(*renderer, point[0].x, point[0].y, point[1].x, point[1].y);
+	SDL_RenderDrawLine(*renderer, point[1].x, point[1].y, point[2].x, point[2].y);
+	SDL_RenderDrawLine(*renderer, point[2].x, point[2].y, point[0].x, point[0].y);
+	return 0;
 }
