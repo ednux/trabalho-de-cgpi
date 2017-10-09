@@ -515,7 +515,7 @@ int main(int argc, char **argv) {
 								}
 							}
 						}
-						
+
 					}
 					pos2.x = (ScreenRect.w - pos2.w) / 2;
 					pos2.y = (ScreenRect.h - pos2.h) / 2;
@@ -753,20 +753,21 @@ int renderFont(SDL_Texture **texture, SDL_Renderer **renderer, TTF_Font *font, c
 
 	return 1;
 }
-int mapear(SDL_Point *point){
+int mapear(SDL_Point *point)
+{
     int screen_maxw = 400;
     int screen_maxh = 240;
     int universe_maxw = 800;
     int universe_maxh = 480;
 
-    point[0].x = (point[0].x * screen_maxw) / universe_maxw;
-    point[0].y = (point[0].y * screen_maxh) / universe_maxh;
+    point[0].x = point[0].x + screen_maxw;
+    point[0].y = point[0].y + screen_maxh;
 
-    point[1].x = (point[1].x * screen_maxw) / universe_maxw;
-    point[1].y = (point[1].y * screen_maxh) / universe_maxh;
+    point[1].x = point[1].x + screen_maxw;
+    point[1].y = point[1].y + screen_maxh;
 
-    point[2].x = (point[2].x * screen_maxw) / universe_maxw;
-    point[2].y = (point[2].y * screen_maxh) / universe_maxh;
+    point[2].x = point[2].x + screen_maxw;
+    point[2].y = point[2].y + screen_maxh;
 
     return 1;
 }
